@@ -82,12 +82,12 @@ def wordy_pyramid():
     TIP: to add an argument to a URL, use: ?argName=argVal e.g. &minLength=
     """
     url = "https://us-central1-waldenpondpress.cloudfunctions.net/give_me_a_word?wordlength={len}"
-    mino = 3
-    maxo = 20
-    wordlist = []
-    templist =[]
-    templist2 =[]
-    for i in range(mino,maxo+1):
+    min = 3
+    max = 20
+    list0 = []
+    list1 = []
+    list2 = []
+    for i in range(min,max+1):
         fullurl=url.format(len=i)
         pull = requests.get(fullurl)   
         if pull.status_code is 200:         
@@ -97,13 +97,13 @@ def wordy_pyramid():
             else:
                 randword = str(randword)
                 if int(i) % 2 ==0:
-                    templist2.append(randword[2:len(randword)-1])
+                    list2.append(randword[2:len(randword)-1])
                 else:
-                    templist.append(randword[2:len(randword)-1])
-    templist2.reverse()
-    wordlist.extend(templist)
-    wordlist.extend(templist2)
-    return wordlist
+                    list1.append(randword[2:len(randword)-1])
+    list2.reverse()
+    list0.extend(list1)
+    list0.extend(list2)
+    return list0
     
 
 def pokedex(low=1, high=5):
