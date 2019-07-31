@@ -33,10 +33,17 @@ def get_some_details():
          dictionary, you'll need integer indeces for lists, and named keys for
          dictionaries.
     """
-    json_data = open(LOCAL + "/lazyduck.json").read()
 
+    json_data = open(LOCAL + "/lazyduck.json").read()
     data = json.loads(json_data)
-    return {"lastName": None, "password": None, "postcodePlusID": None}
+    lastName = data["results"][0]["name"]["last"]
+    password = data["results"][0]["login"]["password"]
+    postcode = data["results"][0]["location"]["postcode"]
+    id = data["results"][0]["id"]["value"]
+    id = int(id)
+    postcode = int(postcode)
+    postcodePlusID = id + postcode
+    return {"lastName": lastName, "password": password, "postcodePlusID": postcodePlusID}
 
 
 def wordy_pyramid():
@@ -74,32 +81,68 @@ def wordy_pyramid():
     ]
     TIP: to add an argument to a URL, use: ?argName=argVal e.g. &minLength=
     """
-    pass
+    url = "https://us-central1-waldenpondpress.cloudfunctions.net/give_me_a_word?wordlength={len}"
+    mino = 3
+    maxo = 20
+    wordlist = []
+    templist =[]
+    templist2 =[]
+    for i in range(mino,maxo+1):
+        fullurl=url.format(len=i)
+        pull = requests.get(fullurl)   
+        if pull.status_code is 200:         
+            randword = pull.content  
+            if randword is None: 
+                pass
+            else:
+                randword = str(randword)
+                if int(i) % 2 ==0:
+                    templist2.append(randword[2:len(randword)-1])
+                else:
+                    templist.append(randword[2:len(randword)-1])
+    templist2.reverse()
+    wordlist.extend(templist)
+    wordlist.extend(templist2)
+    return wordlist
+    
 
+def pokedex(low=1, high=5):
+    """ Return the name, height and weight of the tallest pokemon in the range low to high.
 
-def wunderground():
-    """Find the weather station for Sydney.
-
-    Get some json from a request parse it and extract values.
-    Sign up to https://www.wunderground.com/weather/api/ and get an API key
+    Low and high are the range of pokemon ids to search between.
+    Using the Pokemon API: https://pokeapi.co get some JSON using the request library
+    (a working example is filled in below).
+    Parse the json and extract the values needed.
+    
     TIP: reading json can someimes be a bit confusing. Use a tool like
          http://www.jsoneditoronline.org/ to help you see what's going on.
     TIP: these long json accessors base["thing"]["otherThing"] and so on, can
          get very long. If you are accessing a thing often, assign it to a
          variable and then future access will be easier.
     """
-    base = "http://api.wunderground.com/api/"
-    api_key = "YOUR KEY - REGISTER TO GET ONE"
-    country = "AU"
-    city = "Sydney"
-    template = "{base}/{key}/conditions/q/{country}/{city}.json"
-    url = template.format(base=base, key=api_key, country=country, city=city)
+    template = "https://pokeapi.co/api/v2/pokemon/{id}"
+    
+    index = -1
+    tallest = -1
+
+    for x in range (low, high):
+        url = template.format(base=template,id=x)
+        r = requests.get(url)
+        if r.status_code is 200:
+            data = json.loads(r.text)
+            height = data["height"]
+            if height > tallest:
+                tallest = height
+                index = x
+
+    url = template.format(base=template,id=index)
     r = requests.get(url)
     if r.status_code is 200:
-        the_json = json.loads(r.text)
-        obs = the_json["current_observation"]
-
-    return {"state": None, "latitude": None, "longitude": None, "local_tz_offset": None}
+        data = json.loads(r.text)
+        answer1 = data["name"]
+        answer2 = data["weight"]
+        answer3 = data["height"]
+    return {"name": answer1, "weight": answer2, "height": answer3}
 
 
 def diarist():
@@ -114,8 +157,13 @@ def diarist():
          might be why. Try in rather than == and that might help.
     TIP: remember to commit 'lasers.pew' and push it to your repo, otherwise
          the test will have nothing to look at.
+    TIP: this might come in handy if you need to hack a 3d print file in the future.
     """
-    pass
+    gcode_data= open(LOCAL + "/Trispokedovetiles(laser).gcode").read()
+    count = gcode_data.count("M10 P1")
+    f = open("week4/lasers.pew", "w+")
+    f.write(str(count))
+    f.close
 
 
 if __name__ == "__main__":
