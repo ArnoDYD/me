@@ -52,7 +52,7 @@ def fizz_buzz():
         elif int(i % 3) == 0:
             fizzBuzzList.append("Fizz")
         else:
-            fizzBuzzList.append(str(i))
+            fizzBuzzList.append(i)
     return fizzBuzzList
 
 
